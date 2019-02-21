@@ -1,0 +1,9 @@
+<package>
+  <description brief="OpenCPN plugin that interfaces with the SeaBots system">
+  
+  </description>
+  <author>Sylvain Joyeux/sylvain.joyeux@13robotics.com</author>
+  <license>Proprietary</license>
+  <depend package="wxwidgets" />
+  <depend package="bzip2" />
+</package>
