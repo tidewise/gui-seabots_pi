@@ -1,13 +1,14 @@
 ##---------------------------------------------------------------------------
-## Author:      Sean D'Epagnier
+## Author:      Sylvain Joyeux <sylvain.joyeux@tidewise.io>
 ## Copyright:
 ## License:     GPLv3+
 ##---------------------------------------------------------------------------
 
 # define minimum cmake version
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6.2)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 
-PROJECT(seabots_pi)
+find_package(Rock)
+rock_init(seabots_pi 0.3)
 SET(PACKAGE_NAME seabots_pi)
 SET(VERBOSE_NAME SeaBots)
 SET(TITLE_NAME SeaBots)
@@ -15,7 +16,9 @@ SET(CPACK_PACKAGE_CONTACT "Sylvain Joyeux")
 
 INCLUDE("cmake/PluginConfigure.cmake")
 
-SET(SRC_SeaBots src/Plugin.cpp)
+rock_find_pkgconfig(BASE_TYPES base-types REQUIRED)
+
+SET(SRC_SeaBots src/Plugin.cpp src/NMEA.cpp)
 
 list(APPEND IMAGES images/seabots.png)
 add_custom_command(
@@ -33,8 +36,13 @@ add_custom_command(
 
 add_library(seabots_pi MODULE ${SRC_SeaBots} ${CMAKE_CURRENT_BINARY_DIR}/Images.cpp)
 target_include_directories(seabots_pi PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_link_libraries(seabots_pi ${BASE_TYPES_LIBRARIES})
 add_definitions(-DTIXML_USE_STL)
 
 INCLUDE("cmake/PluginInstall.cmake")
 INCLUDE("cmake/PluginLocalization.cmake")
 INCLUDE("cmake/PluginPackage.cmake")
+
+if (ROCK_TEST_ENABLED)
+    add_subdirectory(test)
+endif()
