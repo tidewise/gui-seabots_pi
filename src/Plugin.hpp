@@ -4,6 +4,13 @@
 #include <wx/wx.h>
 #include "ocpn_plugin.h"
 
+namespace RTT {
+    class TaskContext;
+    namespace base {
+        class ActivityInterface;
+    }
+}
+
 namespace seabots_pi {
     class Plugin : public opencpn_plugin_116 {
         static const int REQUIRED_API_VERSION_MAJOR = 1;
@@ -14,6 +21,17 @@ namespace seabots_pi {
         static const char* NAME;
         static const char* DESCRIPTION_SHORT;
         static const char* DESCRIPTION_LONG;
+
+        typedef std::vector<RTT::TaskContext*> Tasks;
+        Tasks tasks;
+        typedef std::vector<RTT::base::ActivityInterface*> Activities;
+        Activities activities;
+
+        void setupTaskActivity(
+            RTT::TaskContext* task,
+            RTT::base::ActivityInterface* activity = nullptr
+        );
+
     public:
         Plugin(void* pptr);
 

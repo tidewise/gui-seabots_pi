@@ -4,9 +4,16 @@
   </description>
   <author>Sylvain Joyeux/sylvain.joyeux@13robotics.com</author>
   <license>GPLv2 or later</license>
-  <depend package="base/cmake" />
-  <depend package="base/types" />
-  <test_depend package="google-test" />
+
   <depend package="wxgtk" />
   <depend package="bzip2" />
+
+  <depend package="base/cmake" />
+  <depend package="base/types" />
+  <depend package="base/orogen/types" />
+  <depend package="base/orogen/std" />
+  <depend package="gui/orogen/seabots_pi" />
+  <depend package="tools/logger" />
+
+  <test_depend package="google-test" />
 </package>

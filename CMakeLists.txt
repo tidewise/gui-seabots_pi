@@ -34,9 +34,31 @@ add_custom_command(
 #INCLUDE("cmake/PluginJSON.cmake")
 #INCLUDE("cmake/PluginGL.cmake")
 
-add_library(seabots_pi MODULE ${SRC_SeaBots} ${CMAKE_CURRENT_BINARY_DIR}/Images.cpp)
+add_definitions(-DRTT_COMPONENT)
+rock_library(seabots_pi MODULE ${SRC_SeaBots} ${CMAKE_CURRENT_BINARY_DIR}/Images.cpp
+    DEPS_PKGCONFIG base-types
+        orocos-rtt-gnulinux
+        orocos-rtt-corba-gnulinux
+        std-typekit-gnulinux
+        std-transport-corba-gnulinux
+        std-transport-mqueue-gnulinux
+        std-transport-typelib-gnulinux
+        base-typekit-gnulinux
+        base-transport-corba-gnulinux
+        base-transport-mqueue-gnulinux
+        base-transport-typelib-gnulinux
+        seabots_pi-tasks-gnulinux
+        seabots_pi-typekit-gnulinux
+        seabots_pi-transport-corba-gnulinux
+        seabots_pi-transport-mqueue-gnulinux
+        seabots_pi-transport-typelib-gnulinux
+        logger-tasks-gnulinux
+        logger-typekit-gnulinux
+        logger-transport-corba-gnulinux
+        logger-transport-mqueue-gnulinux
+        logger-transport-typelib-gnulinux)
+
 target_include_directories(seabots_pi PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-target_link_libraries(seabots_pi ${BASE_TYPES_LIBRARIES})
 add_definitions(-DTIXML_USE_STL)
 
 INCLUDE("cmake/PluginInstall.cmake")
