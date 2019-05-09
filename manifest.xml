@@ -2,8 +2,8 @@
   <description brief="OpenCPN plugin that interfaces with the SeaBots system">
 
   </description>
-  <author>Sylvain Joyeux/sylvain.joyeux@13robotics.com</author>
-  <license>GPLv2 or later</license>
+  <author>Sylvain Joyeux/sylvain.joyeux@tidewise.io</author>
+  <license>Proprietary</license>
 
   <depend package="wxgtk" />
   <depend package="bzip2" />
