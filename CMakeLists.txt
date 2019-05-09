@@ -47,6 +47,10 @@ rock_library(seabots_pi MODULE ${SRC_SeaBots} ${CMAKE_CURRENT_BINARY_DIR}/Images
         base-transport-corba-gnulinux
         base-transport-mqueue-gnulinux
         base-transport-typelib-gnulinux
+        gps_base-typekit-gnulinux
+        gps_base-transport-corba-gnulinux
+        gps_base-transport-mqueue-gnulinux
+        gps_base-transport-typelib-gnulinux
         seabots_pi-tasks-gnulinux
         seabots_pi-typekit-gnulinux
         seabots_pi-transport-corba-gnulinux

@@ -13,6 +13,11 @@
 #include <base/transports/typelib/TransportPlugin.hpp>
 #include <base/transports/mqueue/TransportPlugin.hpp>
 
+#include <gps_base/typekit/Plugin.hpp>
+#include <gps_base/transports/corba/TransportPlugin.hpp>
+#include <gps_base/transports/typelib/TransportPlugin.hpp>
+#include <gps_base/transports/mqueue/TransportPlugin.hpp>
+
 #include <seabots_pi/Task.hpp>
 #include <seabots_pi/typekit/Plugin.hpp>
 #include <seabots_pi/transports/corba/TransportPlugin.hpp>
@@ -69,6 +74,16 @@ int Plugin::Init() {
     RTT::types::TypekitRepository::Import(new orogen_typekits::loggerCorbaTransportPlugin);
     RTT::types::TypekitRepository::Import(new orogen_typekits::loggerMQueueTransportPlugin);
     RTT::types::TypekitRepository::Import(new orogen_typekits::loggerTypelibTransportPlugin);
+
+    RTT::types::TypekitRepository::Import(new orogen_typekits::gps_baseTypekitPlugin);
+    RTT::types::TypekitRepository::Import(new orogen_typekits::gps_baseCorbaTransportPlugin);
+    RTT::types::TypekitRepository::Import(new orogen_typekits::gps_baseMQueueTransportPlugin);
+    RTT::types::TypekitRepository::Import(new orogen_typekits::gps_baseTypelibTransportPlugin);
+
+    RTT::types::TypekitRepository::Import(new orogen_typekits::seabots_piTypekitPlugin);
+    RTT::types::TypekitRepository::Import(new orogen_typekits::seabots_piCorbaTransportPlugin);
+    RTT::types::TypekitRepository::Import(new orogen_typekits::seabots_piMQueueTransportPlugin);
+    RTT::types::TypekitRepository::Import(new orogen_typekits::seabots_piTypelibTransportPlugin);
 
     // Create the logger component and start the activity
     logger::Logger* logger_task = new logger::Logger();
