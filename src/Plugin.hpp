@@ -12,6 +12,8 @@ namespace RTT {
 }
 
 namespace seabots_pi {
+    class OCPNInterface;
+
     class Plugin : public opencpn_plugin_116 {
         static const int REQUIRED_API_VERSION_MAJOR = 1;
         static const int REQUIRED_API_VERSION_MINOR = 16;
@@ -31,6 +33,8 @@ namespace seabots_pi {
             RTT::TaskContext* task,
             RTT::base::ActivityInterface* activity = nullptr
         );
+
+        OCPNInterface* mInterface;
 
     public:
         Plugin(void* pptr);

@@ -18,7 +18,7 @@ INCLUDE("cmake/PluginConfigure.cmake")
 
 rock_find_pkgconfig(BASE_TYPES base-types REQUIRED)
 
-SET(SRC_SeaBots src/Plugin.cpp src/NMEA.cpp)
+SET(SRC_SeaBots src/Plugin.cpp src/NMEA.cpp src/OCPNInterfaceImpl.cpp)
 
 list(APPEND IMAGES images/seabots.png)
 add_custom_command(
@@ -36,7 +36,7 @@ add_custom_command(
 
 add_definitions(-DRTT_COMPONENT)
 rock_library(seabots_pi MODULE ${SRC_SeaBots} ${CMAKE_CURRENT_BINARY_DIR}/Images.cpp
-    DEPS_PKGCONFIG base-types
+    DEPS_PKGCONFIG base-types gps_base
         orocos-rtt-gnulinux
         orocos-rtt-corba-gnulinux
         std-typekit-gnulinux

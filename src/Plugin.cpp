@@ -1,5 +1,6 @@
 #include "Plugin.hpp"
 #include "Images.hpp"
+#include "OCPNInterfaceImpl.hpp"
 #include <iostream>
 
 #include <std/typekit/Plugin.hpp>
@@ -78,6 +79,8 @@ int Plugin::Init() {
     setupTaskActivity(logger_task, logger_activity);
 
     Task* main_task = new Task();
+    mInterface = new OCPNInterfaceImpl();
+    main_task->setOCPNInterface(mInterface);
     setupTaskActivity(main_task);
 
     return 0;
