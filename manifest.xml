@@ -5,7 +5,7 @@
   <author>Sylvain Joyeux/sylvain.joyeux@tidewise.io</author>
   <license>Proprietary</license>
 
-  <depend package="wx-gtk3" />
+  <depend package="wx-gtk2" />
   <depend package="bzip2" />
 
   <depend package="base/cmake" />
