@@ -48,8 +48,17 @@ const char* Plugin::DESCRIPTION_SHORT = "Seabots interface to OpenCPN";
 const char* Plugin::DESCRIPTION_LONG = "OpenCPN/Seabots interface, to "
     "use OpenCPN for route planning in a Seabots system";
 
+
+Plugin::orogenTaskTimer::orogenTaskTimer(Plugin& plugin)
+    : plugin(plugin) {}
+void Plugin::orogenTaskTimer::Notify()
+{
+    plugin.executeTasks();
+}
+
 Plugin::Plugin(void* pptr)
     : opencpn_plugin_116(pptr)
+    , mTimer(*this)
 {
     initialize_images();
 }
@@ -93,11 +102,12 @@ int Plugin::Init() {
     RTT::Activity* logger_activity = new RTT::Activity( logger_task->engine() );
     setupTaskActivity(logger_task, logger_activity);
 
-    Task* main_task = new Task();
+    Task* main_task = new Task("seabots_pi");
     mInterface = new OCPNInterfaceImpl();
     main_task->setOCPNInterface(mInterface);
     setupTaskActivity(main_task);
 
+    mTimer.Start(UPDATE_PERIOD_MS, wxTIMER_CONTINUOUS); // start timer
     return 0;
 }
 
@@ -107,7 +117,8 @@ void Plugin::setupTaskActivity(
 {
     // Export the component interface on CORBA to Ruby access the component
     RTT::corba::TaskContextServer::Create( task );
-    RTT::corba::CorbaDispatcher::Instance( task->ports(), ORO_SCHED_OTHER, RTT::os::LowestPriority );
+    task->addConstant<int>("CorbaDispatcherScheduler", ORO_SCHED_OTHER);
+    task->addConstant<int>("CorbaDispatcherPriority", RTT::os::LowestPriority);
 
     // Create and start sequential task activities
     if (!activity) {
@@ -118,7 +129,16 @@ void Plugin::setupTaskActivity(
     tasks.push_back(task);
 }
 
+void Plugin::executeTasks()
+{
+    for (auto& task : tasks) {
+        task->getActivity()->execute();
+    }
+}
+
 bool Plugin::DeInit() {
+    mTimer.Stop();
+
     // Deregister the CORBA stuff
     RTT::corba::TaskContextServer::CleanupServers();
     RTT::corba::CorbaDispatcher::ReleaseAll();

@@ -15,10 +15,21 @@ namespace seabots_pi {
     class OCPNInterface;
 
     class Plugin : public opencpn_plugin_116 {
+        friend class orogenTaskTimer;
+
+        struct orogenTaskTimer : public wxTimer
+        {
+            Plugin& plugin;
+            orogenTaskTimer(Plugin& plugin);
+            void Notify();
+        };
+
         static const int REQUIRED_API_VERSION_MAJOR = 1;
         static const int REQUIRED_API_VERSION_MINOR = 16;
         static const int PLUGIN_VERSION_MAJOR = 0;
         static const int PLUGIN_VERSION_MINOR = 1;
+
+        static const int UPDATE_PERIOD_MS = 100;
 
         static const char* NAME;
         static const char* DESCRIPTION_SHORT;
@@ -35,6 +46,9 @@ namespace seabots_pi {
         );
 
         OCPNInterface* mInterface;
+
+        orogenTaskTimer mTimer;
+        void executeTasks();
 
     public:
         Plugin(void* pptr);
