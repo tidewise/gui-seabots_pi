@@ -13,7 +13,7 @@ namespace seabots_pi {
     class OCPNInterfaceImpl : public OCPNInterface {
     public:
         void setUTMConversionParameters(
-            gps_base::LocalCartesianConversionParameters const& parameters
+            gps_base::UTMConversionParameters const& parameters
         );
         void pushSystemPose(base::samples::RigidBodyState const& rbs);
 

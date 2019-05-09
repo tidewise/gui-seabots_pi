@@ -11,12 +11,7 @@ void OCPNInterfaceImpl::setUTMConversionParameters(
     gps_base::UTMConversionParameters const& parameters
 )
 {
-    mLatLonConverter.setParameters(UTMConversionParameters const& parameters);
-}
-
-void OCPNInterfaceImpl::setLocalOrigin(base::Position const& origin)
-{
-    mLatLonConverter.setNWUOrigin(origin);
+    mLatLonConverter.setParameters(parameters);
 }
 
 void OCPNInterfaceImpl::pushSystemPose(base::samples::RigidBodyState const& rbs)
