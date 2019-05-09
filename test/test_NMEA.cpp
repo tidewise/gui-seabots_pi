@@ -21,7 +21,7 @@ TEST_F(NMEATest, it_builds_a_VTG_message_with_all_required_info) {
     double speed = 1.4;
 
     string msg = nmea::createVTG(geographic, magnetic, speed);
-    ASSERT_EQ("$SBVTG,10.42,T,15.21,M,2.72,N,5.04,K*4E", msg);
+    ASSERT_EQ("$SBVTG,349.58,T,344.79,M,2.72,N,5.04,K*40", msg);
 }
 
 TEST_F(NMEATest, it_adds_360_degrees_to_negative_angles) {
@@ -30,7 +30,7 @@ TEST_F(NMEATest, it_adds_360_degrees_to_negative_angles) {
     double speed = 1.4;
 
     string msg = nmea::createVTG(geographic, magnetic, speed);
-    ASSERT_EQ(string("$SBVTG,349.58,T,344.79,M,2.72,N,5.04,K*40"), msg);
+    ASSERT_EQ(string("$SBVTG,10.42,T,15.21,M,2.72,N,5.04,K*4E"), msg);
 }
 
 TEST_F(NMEATest, it_flips_the_course_if_the_velocity_is_negative) {
@@ -39,7 +39,7 @@ TEST_F(NMEATest, it_flips_the_course_if_the_velocity_is_negative) {
     double speed = -1.4;
 
     string msg = nmea::createVTG(geographic, magnetic, speed);
-    ASSERT_EQ(string("$SBVTG,190.42,T,195.21,M,2.72,N,5.04,K*4E"), msg);
+    ASSERT_EQ(string("$SBVTG,169.58,T,164.79,M,2.72,N,5.04,K*40"), msg);
 }
 
 TEST_F(NMEATest, it_converts_a_time_into_the_UTC_format_required_by_NMEA) {
@@ -77,7 +77,7 @@ TEST_F(NMEATest, it_formats_the_RMC_message) {
     string msg = nmea::createRMC(time, latitude, longitude, 1.4,
         track, base::Angle::fromDeg(2));
 
-    ASSERT_EQ("$SBRMC,200425.12,A,4312.813,N,04301.079,E,2.7,10.4,250419,2.0,E*63",
+    ASSERT_EQ("$SBRMC,200425.12,A,4312.813,N,04301.079,E,2.7,349.6,250419,2.0,E*5E",
         msg);
 }
 
@@ -93,7 +93,7 @@ TEST_F(NMEATest, it_goes_south_for_a_negative_latitude) {
     string msg = nmea::createRMC(time, latitude, longitude, 1.4,
         track, base::Angle::fromDeg(2));
 
-    ASSERT_EQ("$SBRMC,200425.12,A,4312.813,S,04301.079,E,2.7,10.4,250419,2.0,E*7E",
+    ASSERT_EQ("$SBRMC,200425.12,A,4312.813,S,04301.079,E,2.7,349.6,250419,2.0,E*43",
         msg);
 }
 
@@ -109,12 +109,12 @@ TEST_F(NMEATest, it_goes_west_for_a_negative_longitude) {
     string msg = nmea::createRMC(time, latitude, longitude, 1.4,
         track, base::Angle::fromDeg(2));
 
-    ASSERT_EQ("$SBRMC,200425.12,A,4312.813,N,04301.079,W,2.7,10.4,250419,2.0,E*71",
+    ASSERT_EQ("$SBRMC,200425.12,A,4312.813,N,04301.079,W,2.7,349.6,250419,2.0,E*4C",
         msg);
 }
 
 TEST_F(NMEATest, it_creates_a_heading_message) {
     base::Angle heading = base::Angle::fromDeg(10.42);
     string msg = nmea::createHDT(heading);
-    ASSERT_EQ("$SBHDT,10.42,T*34", msg);
+    ASSERT_EQ("$SBHDT,349.58,T*0", msg);
 }

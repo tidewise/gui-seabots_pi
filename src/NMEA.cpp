@@ -7,7 +7,8 @@ using namespace seabots_pi;
 
 static double headingToNMEA(base::Angle angle)
 {
-    double deg = angle.getDeg();
+    // NMEA goes positive towards east
+    double deg = - angle.getDeg();
     if (deg < 0)
         deg += 360;
 
