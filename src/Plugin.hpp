@@ -12,7 +12,7 @@ namespace RTT {
 }
 
 namespace seabots_pi {
-    class OCPNInterface;
+    class OCPNInterfaceImpl;
 
     class Plugin : public opencpn_plugin_116 {
         friend class orogenTaskTimer;
@@ -35,6 +35,8 @@ namespace seabots_pi {
         static const char* DESCRIPTION_SHORT;
         static const char* DESCRIPTION_LONG;
 
+        static const int TOOL_EXECUTE_ROOT_POSITION = -1;
+
         typedef std::vector<RTT::TaskContext*> Tasks;
         Tasks tasks;
         typedef std::vector<RTT::base::ActivityInterface*> Activities;
@@ -45,14 +47,23 @@ namespace seabots_pi {
             RTT::base::ActivityInterface* activity = nullptr
         );
 
-        OCPNInterface* mInterface;
+        OCPNInterfaceImpl* mInterface;
 
         orogenTaskTimer mTimer;
         void executeTasks();
 
         void loadSVGs();
+        void setupToolbar();
+
         wxString mSeabotsSVG;
         wxBitmap mSeabotsBitmap;
+
+        wxString mExecuteRouteSVG;
+        wxString mExecuteRouteSVGToggled;
+        int mExecuteRoutePosition = -1;
+        int mExecuteRouteTool = -1;
+        int GetToolbarToolCount(void);
+        void OnToolbarToolCallback(int id);
 
     public:
         Plugin(void* pptr);
@@ -65,6 +76,8 @@ namespace seabots_pi {
         int GetPlugInVersionMajor() { return PLUGIN_VERSION_MAJOR; }
         int GetPlugInVersionMinor() { return PLUGIN_VERSION_MINOR; }
         wxBitmap *GetPlugInBitmap();
+
+        bool executeCurrentRoute();
 
         wxString GetCommonName() { return NAME; }
         wxString GetShortDescription() { return DESCRIPTION_SHORT; }

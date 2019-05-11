@@ -56,6 +56,8 @@ rock_library(seabots_pi
 target_include_directories(seabots_pi PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src)
 
 install(FILES images/seabots.svg
+              images/execute_route.svg
+              images/execute_route_toggled.svg
         DESTINATION "${PLUGIN_DATA_PATH}")
 
 target_include_directories(seabots_pi PRIVATE ${CMAKE_CURRENT_BINARY_DIR})

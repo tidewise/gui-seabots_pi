@@ -108,16 +108,38 @@ int Plugin::Init() {
     setupTaskActivity(logger_task, logger_activity);
 
     Task* main_task = new Task("seabots_pi");
-    mInterface = new OCPNInterfaceImpl();
+    mInterface = new OCPNInterfaceImpl(*main_task);
     main_task->setOCPNInterface(mInterface);
     setupTaskActivity(main_task);
 
-    mTimer.Start(UPDATE_PERIOD_MS, wxTIMER_CONTINUOUS); // start timer
-    return 0;
+    setupToolbar();
+
+    // Start timer
+    mTimer.Start(UPDATE_PERIOD_MS, wxTIMER_CONTINUOUS);
+    return (
+        WANTS_TOOLBAR_CALLBACK |
+        INSTALLS_TOOLBAR_TOOL
+    );
+}
+
+void Plugin::setupToolbar()
+{
+    mExecuteRouteTool = InsertPlugInToolSVG(
+        _T( "Execute Route" ),
+        mExecuteRouteSVG, mExecuteRouteSVG, mExecuteRouteSVGToggled, wxITEM_CHECK,
+        _("Execute Route"), _T( "" ), NULL, TOOL_EXECUTE_ROOT_POSITION, 0, this);
+}
+
 void Plugin::loadSVGs()
 {
     wxFileName fn;
     fn.SetPath(paths::DATA_PATH);
+
+    fn.SetFullName("execute_route.svg");
+    mExecuteRouteSVG = fn.GetFullPath();
+    std::cout << mExecuteRouteSVG << std::endl;
+    fn.SetFullName("execute_route_toggled.svg");
+    mExecuteRouteSVGToggled = fn.GetFullPath();
     fn.SetFullName("seabots.svg");
     mSeabotsSVG = fn.GetFullPath();
     mSeabotsBitmap = GetBitmapFromSVGFile(mSeabotsSVG, 128, 128);
@@ -148,6 +170,32 @@ void Plugin::executeTasks()
     }
 }
 
+int Plugin::GetToolbarToolCount(void)
+{
+      return 1;
+}
+
+void Plugin::OnToolbarToolCallback(int id)
+{
+    if (id == mExecuteRouteTool) {
+        bool result = executeCurrentRoute();
+        SetToolbarItemState(mExecuteRouteTool, result);
+    }
+}
+
+bool Plugin::executeCurrentRoute()
+{
+    wxString routeID = GetSelectedRouteGUID_Plugin();
+    if (routeID.IsEmpty()) {
+        wxMessageBox("No route selected");
+        return false;
+    }
+
+    auto route = GetRoute_Plugin(routeID);
+    mInterface->pushRoute(*route);
+    return true;
+}
+
 bool Plugin::DeInit() {
     mTimer.Stop();
 
@@ -161,6 +209,7 @@ bool Plugin::DeInit() {
     {
         delete *activity_it;
     }
+    activities.clear();
 
     // Delete pointers to tasks
     for(Tasks::iterator task_it = tasks.begin();
@@ -168,9 +217,12 @@ bool Plugin::DeInit() {
     {
         delete *task_it;
     }
+    tasks.clear();
 
     RTT::corba::TaskContextServer::ShutdownOrb();
     RTT::corba::TaskContextServer::DestroyOrb();
+    delete mInterface;
+    mInterface = nullptr;
     return true;
 }
 

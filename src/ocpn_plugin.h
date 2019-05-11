@@ -578,6 +578,8 @@ public:
 
     double             m_lat;
     double             m_lon;
+    double             m_speed;
+    double             m_course;
 
     wxString          m_GUID;
 
