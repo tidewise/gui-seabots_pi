@@ -9,12 +9,12 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="41.531246"
-   height="40.101562"
-   viewBox="0 0 10.988475 10.610205"
+   width="32"
+   height="32"
+   viewBox="0 0 8.4666662 8.4666665"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    sodipodi:docname="seabots.svg">
   <defs
      id="defs2" />
@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="107.05195"
-     inkscape:cy="7.0800373"
+     inkscape:zoom="3.959798"
+     inkscape:cx="-9.8141603"
+     inkscape:cy="5.3090611"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -57,22 +57,26 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-23.411197,-72.817593)">
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-       x="24.190477"
-       y="77.017853"
-       id="text817"><tspan
-         sodipodi:role="line"
-         id="tspan815"
-         x="24.190477"
-         y="77.017853"
-         style="stroke-width:0.26458332">Sea</tspan><tspan
-         sodipodi:role="line"
-         x="24.190477"
-         y="82.309517"
-         style="stroke-width:0.26458332"
-         id="tspan819">Bots</tspan></text>
+     transform="translate(-23.411197,-74.961132)">
+    <g
+       id="g4530"
+       transform="matrix(0.89828956,0,0,0.89828956,1.4856398,8.9460581)">
+      <text
+         id="text817"
+         y="76.488686"
+         x="25.124495"
+         style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#4d4d4d;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+         xml:space="preserve"><tspan
+           id="tspan819"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.11666656px;font-family:'Noto Sans';-inkscape-font-specification:'Noto Sans';fill:#4d4d4d;fill-opacity:1;stroke-width:0.26458332"
+           y="76.488686"
+           x="25.124495"
+           sodipodi:role="line">SeaBots</tspan></text>
+      <path
+         id="path4"
+         d="m 25.227719,78.649704 v -0.750505 c 0.569871,0 1.059427,0.223848 1.269553,1.137138 0.09282,0.403446 0.210904,0.914216 0.317158,1.313583 0.07791,0.292848 0.203271,0.386672 0.390103,0.386672 0.186832,0 0.312188,-0.09379 0.390101,-0.386646 0.106256,-0.399363 0.224279,-1.000443 0.317098,-1.403873 0.21013,-0.91329 0.639167,-1.135756 1.209038,-1.135756 0.569866,0 0.999572,0.222453 1.20971,1.135741 0.09283,0.403435 0.210572,1.004509 0.316809,1.403877 0.07794,0.292849 0.203305,0.386636 0.390128,0.386636 0.186824,0 0.31218,-0.09382 0.390085,-0.386662 0.106286,-0.399374 0.223937,-0.910137 0.316765,-1.313583 0.210138,-0.91329 0.699712,-1.137146 1.26957,-1.137146 v 0.750513 c -0.186824,0 -0.31218,0.09379 -0.390085,0.386633 -0.106286,0.399367 -0.22398,0.910148 -0.316808,1.313583 -0.210096,0.913293 -0.69967,1.137167 -1.269527,1.137167 -0.5699,0 -1.059432,-0.223847 -1.26957,-1.137141 -0.09283,-0.403442 -0.21057,-1.004503 -0.316821,-1.403877 -0.07791,-0.292846 -0.143083,-0.38662 -0.32992,-0.38662 -0.186832,0 -0.252011,0.09379 -0.329923,0.386635 -0.106256,0.399377 -0.224275,1.000435 -0.317097,1.403873 -0.210128,0.913293 -0.699684,1.137149 -1.269553,1.137149 -0.569871,0 -1.059427,-0.223877 -1.269553,-1.137175 -0.09282,-0.403432 -0.210903,-0.914215 -0.317159,-1.313583 -0.07791,-0.292841 -0.20327,-0.386633 -0.390102,-0.386633 z"
+         style="fill:#007c91;stroke-width:0.0432562"
+         inkscape:connector-curvature="0" />
+    </g>
   </g>
 </svg>

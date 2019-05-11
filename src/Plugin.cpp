@@ -1,7 +1,10 @@
 #include "Plugin.hpp"
 #include "Images.hpp"
 #include "OCPNInterfaceImpl.hpp"
+#include "Paths.hpp"
 #include <iostream>
+
+#include <wx/filename.h>
 
 #include <std/typekit/Plugin.hpp>
 #include <std/transports/corba/TransportPlugin.hpp>
@@ -64,6 +67,8 @@ Plugin::Plugin(void* pptr)
 }
 
 int Plugin::Init() {
+    loadSVGs();
+
     static char const* argv[] = { "seabots_pi" };
     RTT::corba::ApplicationServer::InitOrb(1, const_cast<char**>(argv));
     RTT::corba::TaskContextServer::ThreadOrb(ORO_SCHED_OTHER, RTT::os::LowestPriority, 0);
@@ -109,6 +114,13 @@ int Plugin::Init() {
 
     mTimer.Start(UPDATE_PERIOD_MS, wxTIMER_CONTINUOUS); // start timer
     return 0;
+void Plugin::loadSVGs()
+{
+    wxFileName fn;
+    fn.SetPath(paths::DATA_PATH);
+    fn.SetFullName("seabots.svg");
+    mSeabotsSVG = fn.GetFullPath();
+    mSeabotsBitmap = GetBitmapFromSVGFile(mSeabotsSVG, 128, 128);
 }
 
 void Plugin::setupTaskActivity(
@@ -163,7 +175,7 @@ bool Plugin::DeInit() {
 }
 
 wxBitmap* Plugin::GetPlugInBitmap() {
-    return _img_seabots;
+    return &mSeabotsBitmap;
 }
 
 extern "C" DECL_EXP opencpn_plugin* create_pi(void *ppimgr)

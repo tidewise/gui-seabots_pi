@@ -50,6 +50,10 @@ namespace seabots_pi {
         orogenTaskTimer mTimer;
         void executeTasks();
 
+        void loadSVGs();
+        wxString mSeabotsSVG;
+        wxBitmap mSeabotsBitmap;
+
     public:
         Plugin(void* pptr);
 

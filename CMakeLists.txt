@@ -18,24 +18,16 @@ INCLUDE("cmake/PluginConfigure.cmake")
 
 rock_find_pkgconfig(BASE_TYPES base-types REQUIRED)
 
-SET(SRC_SeaBots src/Plugin.cpp src/NMEA.cpp src/OCPNInterfaceImpl.cpp)
-
-list(APPEND IMAGES images/seabots.png)
-add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/Images.cpp ${CMAKE_CURRENT_BINARY_DIR}/Images.hpp
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/png2wx.pl
-        -C ${CMAKE_CURRENT_BINARY_DIR}/Images.cpp
-        -H ${CMAKE_CURRENT_BINARY_DIR}/Images.hpp
-        -M SEABOTS_PI_IMAGES_HPP ${IMAGES}
-    DEPENDS ${IMAGES} ${CMAKE_CURRENT_SOURCE_DIR}/tools/png2wx.pl
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-
 #INCLUDE("cmake/PluginNMEA.cmake")
 #INCLUDE("cmake/PluginJSON.cmake")
 #INCLUDE("cmake/PluginGL.cmake")
 
+set(PLUGIN_DATA_PATH share/opencpn/plugins/seabots_pi)
+configure_file(src/Paths.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/src/Paths.hpp @ONLY)
+
 add_definitions(-DRTT_COMPONENT)
-rock_library(seabots_pi MODULE ${SRC_SeaBots} ${CMAKE_CURRENT_BINARY_DIR}/Images.cpp
+rock_library(seabots_pi
+    MODULE src/Plugin.cpp src/NMEA.cpp src/OCPNInterfaceImpl.cpp
     DEPS_PKGCONFIG base-types gps_base
         orocos-rtt-gnulinux
         orocos-rtt-corba-gnulinux
@@ -61,6 +53,10 @@ rock_library(seabots_pi MODULE ${SRC_SeaBots} ${CMAKE_CURRENT_BINARY_DIR}/Images
         logger-transport-corba-gnulinux
         logger-transport-mqueue-gnulinux
         logger-transport-typelib-gnulinux)
+target_include_directories(seabots_pi PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src)
+
+install(FILES images/seabots.svg
+        DESTINATION "${PLUGIN_DATA_PATH}")
 
 target_include_directories(seabots_pi PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 add_definitions(-DTIXML_USE_STL)

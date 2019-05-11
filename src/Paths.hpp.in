@@ -1,0 +1,11 @@
+#ifndef SEABOTS_PI_Paths_HPP
+#define SEABOTS_PI_Paths_HPP
+
+namespace seabots_pi {
+    namespace paths {
+        /** Full path to the folder where our SVG files are installed */
+        static const char* DATA_PATH = "@CMAKE_INSTALL_PREFIX@/@PLUGIN_DATA_PATH@";
+    }
+}
+
+#endif
