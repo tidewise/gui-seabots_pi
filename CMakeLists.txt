@@ -26,6 +26,7 @@ set(PLUGIN_DATA_PATH share/opencpn/plugins/seabots_pi)
 configure_file(src/Paths.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/src/Paths.hpp @ONLY)
 
 add_definitions(-DRTT_COMPONENT)
+find_package(marnav)
 rock_library(seabots_pi
     MODULE src/Plugin.cpp src/NMEA.cpp src/OCPNInterfaceImpl.cpp
     DEPS_PKGCONFIG base-types gps_base
@@ -53,7 +54,9 @@ rock_library(seabots_pi
         logger-transport-corba-gnulinux
         logger-transport-mqueue-gnulinux
         logger-transport-typelib-gnulinux)
-target_include_directories(seabots_pi PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src)
+target_include_directories(seabots_pi PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR}/src)
+target_link_libraries(seabots_pi marnav::marnav)
 
 install(FILES images/seabots.svg
               images/execute_route.svg

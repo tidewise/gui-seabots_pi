@@ -17,6 +17,7 @@
   <depend package="drivers/orogen/gps_base" />
   <depend package="gui/orogen/seabots_pi" />
   <depend package="tools/logger" />
+  <depend package="drivers/marnav" />
 
   <test_depend package="google-test" />
   <test_depend package="google-mock" />

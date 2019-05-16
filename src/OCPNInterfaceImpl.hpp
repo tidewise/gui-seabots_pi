@@ -28,7 +28,14 @@ namespace seabots_pi {
         /** Send an OpenCPN route to the Rock system */
         void pushRoute(PlugIn_Route const& route);
 
+        /** Send an AIS position message to OpenCPN */
+        void updateAIS(seabots_pi::AISPosition const& position);
+
+        /** Send an AIS vessel message to OpenCPN */
+        void updateAIS(seabots_pi::AISVesselInformation const& vessel);
+
     private:
+        template<typename T> void pushAIS(T const& msg);
         void pushNMEA(std::string nmea);
 
         gps_base::UTMConverter mLatLonConverter;
