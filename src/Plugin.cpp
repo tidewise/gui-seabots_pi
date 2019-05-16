@@ -63,7 +63,6 @@ Plugin::Plugin(void* pptr)
     : opencpn_plugin_116(pptr)
     , mTimer(*this)
 {
-    initialize_images();
 }
 
 int Plugin::Init() {
