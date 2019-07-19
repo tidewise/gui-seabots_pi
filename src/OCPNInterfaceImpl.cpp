@@ -55,9 +55,14 @@ void OCPNInterfaceImpl::pushRoute(PlugIn_Route const& route)
         Waypoint rock_wp;
         rock_wp.position = mLatLonConverter.convertToNWU(solution).position;
         rock_wp.speed = wp.m_speed;
+        if (rock_wp.speed == 0) {
+            rock_wp.speed = route.m_PlannedSpeed;
+        }
         rock_wp.course = base::Angle::fromDeg(- wp.m_course);
         rock_wps.push_back(rock_wp);
     }
+    rock_wps[0].speed = 0;
+    rock_wps[rock_wps.size() - 1].speed = 0;
     pushWaypoints(rock_wps);
 }
 

@@ -608,6 +608,8 @@ public:
     wxString    m_GUID;
 
     Plugin_WaypointList     *pWaypointList;
+
+    double      m_PlannedSpeed;
 };
 
 class DECL_EXP PlugIn_Track
