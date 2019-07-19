@@ -5,6 +5,9 @@
 #include <iostream>
 
 #include <wx/filename.h>
+#include <wx/file.h>
+#include <GL/gl.h>
+#include <GL/glext.h>
 
 #include <std/typekit/Plugin.hpp>
 #include <std/transports/corba/TransportPlugin.hpp>
@@ -45,6 +48,9 @@
 #include <rtt/plugin/PluginLoader.hpp>
 
 using namespace seabots_pi;
+using namespace std;
+
+#define GL_CHECK_ERRORS() glCheckErrors(__FILE__, __LINE__, true);
 
 const char* Plugin::NAME = "Seabots";
 const char* Plugin::DESCRIPTION_SHORT = "Seabots interface to OpenCPN";
@@ -117,6 +123,7 @@ int Plugin::Init() {
     mTimer.Start(UPDATE_PERIOD_MS, wxTIMER_CONTINUOUS);
     return (
         WANTS_TOOLBAR_CALLBACK |
+        WANTS_DYNAMIC_OPENGL_OVERLAY_CALLBACK | WANTS_OPENGL_OVERLAY_CALLBACK | WANTS_OVERLAY_CALLBACK |
         INSTALLS_TOOLBAR_TOOL
     );
 }
@@ -129,6 +136,186 @@ void Plugin::setupToolbar()
         _("Execute Route"), _T( "" ), NULL, TOOL_EXECUTE_ROOT_POSITION, 0, this);
 }
 
+void Plugin::glAllocateTrajectoryArrays(int neededSize) {
+    int currentSize = mPlannedTrajectoryVBOs.size();
+    if (currentSize >= neededSize)
+        return;
+
+    mPlannedTrajectoryVAOs.resize(neededSize, 0);
+    mPlannedTrajectoryVBOs.resize(neededSize, 0);
+    glGenVertexArrays(neededSize - currentSize, &mPlannedTrajectoryVAOs[currentSize]);
+    glGenBuffers(neededSize - currentSize, &mPlannedTrajectoryVBOs[currentSize]);
+
+    for (int i = currentSize; i < neededSize; ++i) {
+        glBindVertexArray(mPlannedTrajectoryVAOs[i]);
+        glBindBuffer(GL_ARRAY_BUFFER, mPlannedTrajectoryVBOs[i]);
+        glVertexAttribPointer(mTrajectoryPointPositionAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
+        glEnableVertexAttribArray(mTrajectoryPointPositionAttribute);
+    }
+}
+
+void Plugin::glUploadSampledTrajectory(
+    int index, OCPNInterfaceImpl::SampledTrajectory const& trajectory, PlugIn_ViewPort* vp)
+{
+    std::vector<float> coords;
+    coords.reserve(trajectory.points.size() * 2);
+    for (auto ll : trajectory.points) {
+        wxPoint pp;
+        GetCanvasPixLL(vp, &pp, ll.latitude_deg, ll.longitude_deg);
+        coords.push_back(pp.x);
+        coords.push_back(pp.y);
+    }
+
+    glNamedBufferData(mPlannedTrajectoryVBOs[index],
+        sizeof(coords[0]) * coords.size(),
+        coords.data(), GL_STATIC_DRAW);
+}
+
+struct GLStatePush
+{
+    GLint currentProgram;
+    GLint arrayBuffer;
+
+    GLStatePush() {
+        glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
+        glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &arrayBuffer);
+    }
+
+    ~GLStatePush() {
+        glUseProgram(currentProgram);
+        glBindBuffer(GL_ARRAY_BUFFER, arrayBuffer);
+        glBindVertexArray(0);
+    }
+};
+
+bool Plugin::RenderGLOverlayMultiCanvas(wxGLContext *pcontext, PlugIn_ViewPort *vp, int canvasIndex)
+{
+    glCheckErrors(__FILE__, __LINE__, false);
+    glLoadPrograms();
+
+    GLStatePush state;
+    //float viewTransform[4] = {
+    //    2.0f / vp->pix_width, 0,
+    //    0, -2.0f / vp->pix_height
+    //};
+    float viewTransform[16] = {
+        2.0f / vp->pix_width, 0, 0, -1,
+        0, -2.0f / vp->pix_height, 0, 1,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+    };
+
+    auto const& current = mInterface->getCurrentPlannedTrajectory();
+    auto const& trajectories = current.second;
+    if (!trajectories.empty()) {
+        glAllocateTrajectoryArrays(trajectories.size());
+        for (unsigned int i = 0; i < trajectories.size(); ++i)
+        {
+            glUploadSampledTrajectory(i, trajectories[i], vp);
+            GL_CHECK_ERRORS();
+        }
+
+        glUseProgram(mTrajectoryGLProgramID);
+        glUniformMatrix4fv(mTrajectoryViewTransformUniform, 1, true, viewTransform);
+
+        for (unsigned int i = 0; i < trajectories.size(); ++i) {
+            glBindVertexArray(mPlannedTrajectoryVAOs[i]);
+            glDrawArrays(GL_LINE_STRIP, 0, trajectories[i].points.size());
+            GL_CHECK_ERRORS();
+        }
+    }
+
+    return true;
+}
+
+wxString Plugin::readDataFile(wxString const& name)
+{
+    wxFileName fn;
+    fn.SetPath(paths::DATA_PATH);
+    fn.SetFullName(name);
+    wxFile file;
+    file.Open(fn.GetFullPath());
+
+    wxString contents;
+    if (!file.ReadAll(&contents)) {
+        throw std::runtime_error("failed to read file " + name);
+    }
+    return contents;
+}
+
+void Plugin::glLoadPrograms()
+{
+    if (!mTrajectoryGLProgramID) {
+        mTrajectoryGLProgramID = glLoadProgram("trajectory");
+        mTrajectoryPointPositionAttribute =
+            glGetAttribLocation(mTrajectoryGLProgramID, "position");
+        mTrajectoryViewTransformUniform =
+            glGetUniformLocation(mTrajectoryGLProgramID, "viewTransform");
+    }
+}
+
+GLuint Plugin::glLoadProgram(wxString name)
+{
+    auto vertex = glLoadShader(name + ".vert", GL_VERTEX_SHADER);
+    auto frag = glLoadShader(name + ".frag", GL_FRAGMENT_SHADER);
+
+    GLuint shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertex);
+    glAttachShader(shaderProgram, frag);
+
+    // Flag the shaders for deletion
+    glDeleteShader(vertex);
+    glDeleteShader(frag);
+
+    // Link and use the program
+    glLinkProgram(shaderProgram);
+
+    GL_CHECK_ERRORS();
+    return shaderProgram;
+}
+
+GLuint Plugin::glLoadShader(wxString name, GLenum shaderType)
+{
+    wxString content = readDataFile(name);
+    const char* code = content.GetData();
+    GLuint shader = glCreateShader(shaderType);
+    glShaderSource(shader, 1, &code, NULL);
+    glCompileShader(shader);
+
+    // Check the result of the compilation
+    GLint test;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &test);
+    if(!test) {
+        std::cerr << "Shader compilation failed with this message:" << std::endl;
+        std::vector<char> compilation_log(512);
+        glGetShaderInfoLog(shader, compilation_log.size(), NULL, &compilation_log[0]);
+        std::cerr << &compilation_log[0] << std::endl;
+        throw std::runtime_error("failed to load shader " + name);
+    }
+    return shader;
+}
+
+void Plugin::glCheckErrors(const char *file, int line, bool throwOnError) {
+    bool hasErrors = false;
+    for(GLenum err = glGetError(); err != GL_NO_ERROR; err = glGetError()) {
+        string error;
+
+        switch(err) {
+            case GL_INVALID_OPERATION:      error="INVALID_OPERATION";      break;
+            case GL_INVALID_ENUM:           error="INVALID_ENUM";           break;
+            case GL_INVALID_VALUE:          error="INVALID_VALUE";          break;
+            case GL_OUT_OF_MEMORY:          error="OUT_OF_MEMORY";          break;
+            case GL_INVALID_FRAMEBUFFER_OPERATION:  error="INVALID_FRAMEBUFFER_OPERATION";  break;
+        }
+
+        cerr << "GL_" << error.c_str() << " - " << file << ":" << line<<endl;
+        hasErrors = true;
+    }
+    if (hasErrors && throwOnError) {
+        throw std::runtime_error("OpenGL errors detected");
+    }
+}
+
 void Plugin::loadSVGs()
 {
     wxFileName fn;
@@ -136,7 +323,6 @@ void Plugin::loadSVGs()
 
     fn.SetFullName("execute_route.svg");
     mExecuteRouteSVG = fn.GetFullPath();
-    std::cout << mExecuteRouteSVG << std::endl;
     fn.SetFullName("execute_route_toggled.svg");
     mExecuteRouteSVGToggled = fn.GetFullPath();
     fn.SetFullName("seabots.svg");
@@ -184,7 +370,7 @@ void Plugin::OnToolbarToolCallback(int id)
 
 bool Plugin::executeCurrentRoute()
 {
-    wxString routeID = GetSelectedRouteGUID_Plugin();
+    wxString routeID = GetActiveRouteGUID_Plugin();
     if (routeID.IsEmpty()) {
         wxMessageBox("No route selected");
         return false;

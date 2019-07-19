@@ -1308,6 +1308,7 @@ extern "C"  DECL_EXP void SetCanvasMenuItemGrey(int item, bool grey, const char 
 
 // Extract waypoints, routes and tracks
 extern DECL_EXP wxString GetSelectedWaypointGUID_Plugin( );
+extern DECL_EXP wxString GetActiveRouteGUID_Plugin( );
 extern DECL_EXP wxString GetSelectedRouteGUID_Plugin( );
 extern DECL_EXP wxString GetSelectedTrackGUID_Plugin( );
 
