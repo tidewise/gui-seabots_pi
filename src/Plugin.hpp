@@ -2,7 +2,10 @@
 #define SEABOTS_PI_PLUGIN_HPP
 
 #include <wx/wx.h>
+#include "OCPNInterfaceImpl.hpp"
 #include "ocpn_plugin.h"
+
+#include <GL/gl.h>
 
 namespace RTT {
     class TaskContext;
@@ -53,6 +56,7 @@ namespace seabots_pi {
         void executeTasks();
 
         void loadSVGs();
+        wxString readDataFile(wxString const& name);
         void setupToolbar();
 
         wxString mSeabotsSVG;
@@ -65,6 +69,25 @@ namespace seabots_pi {
         int GetToolbarToolCount(void);
         void OnToolbarToolCallback(int id);
 
+        GLuint mTrajectoryGLProgramID = 0;
+        GLint mTrajectoryPointPositionAttribute = 0;
+        GLint mTrajectoryViewTransformUniform = 0;
+
+        uint mPlannedTrajectoryID = 0;
+        uint mPlannedTrajectoryCount = 0;
+        std::vector<uint> mPlannedTrajectoryVAOs;
+        std::vector<uint> mPlannedTrajectoryVBOs;
+
+        void glCheckErrors(const char *file, int line, bool throwOnError);
+        void glLoadPrograms();
+        GLuint glLoadProgram(wxString name);
+        GLuint glLoadShader(wxString name, GLenum shaderType);
+        void glAllocateTrajectoryArrays(int neededSize);
+        void glUploadSampledTrajectory(
+            int i, OCPNInterfaceImpl::SampledTrajectory const&,
+            PlugIn_ViewPort* vp
+        );
+
     public:
         Plugin(void* pptr);
 
@@ -76,6 +99,8 @@ namespace seabots_pi {
         int GetPlugInVersionMajor() { return PLUGIN_VERSION_MAJOR; }
         int GetPlugInVersionMinor() { return PLUGIN_VERSION_MINOR; }
         wxBitmap *GetPlugInBitmap();
+
+        virtual bool RenderGLOverlayMultiCanvas(wxGLContext *pcontext, PlugIn_ViewPort *vp, int index);
 
         bool executeCurrentRoute();
 

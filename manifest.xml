@@ -11,6 +11,7 @@
   <depend package="base/cmake" />
   <depend package="base/types" />
   <depend package="drivers/gps_base" />
+  <depend package="control/usv_control" />
 
   <depend package="base/orogen/std" />
   <depend package="base/orogen/types" />

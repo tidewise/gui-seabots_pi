@@ -17,6 +17,7 @@ void OCPNInterfaceImpl::setUTMConversionParameters(
     gps_base::UTMConversionParameters const& parameters
 )
 {
+    currentPlannedTrajectory.first = 0;
     mLatLonConverter.setParameters(parameters);
 }
 
@@ -42,6 +43,7 @@ void OCPNInterfaceImpl::updateSystemPose(base::samples::RigidBodyState const& rb
 /** Send an OpenCPN route to the Rock system */
 void OCPNInterfaceImpl::pushRoute(PlugIn_Route const& route)
 {
+    std::cout << "InterfaceImpl ROUTE SPEED " << route.m_PlannedSpeed << std::endl;
     std::vector<Waypoint> rock_wps;
     for (auto const& waypoint_ptr : *route.pWaypointList) {
         auto const& wp = *waypoint_ptr;
@@ -64,6 +66,58 @@ void OCPNInterfaceImpl::pushRoute(PlugIn_Route const& route)
     rock_wps[0].speed = 0;
     rock_wps[rock_wps.size() - 1].speed = 0;
     pushWaypoints(rock_wps);
+}
+
+void OCPNInterfaceImpl::updatePlannedTrajectory(
+    std::vector<usv_control::Trajectory> const& trajectories, base::Time dt
+)
+{
+    std::vector<SampledTrajectory> sampled;
+    sampled.reserve(trajectories.size());
+    for (auto const& rockTrajectory : trajectories) {
+        sampled.push_back(sampleTrajectory(rockTrajectory, dt));
+    }
+    currentPlannedTrajectory.first++;
+    currentPlannedTrajectory.second = std::move(sampled);
+}
+
+
+pair<int, vector<OCPNInterfaceImpl::SampledTrajectory>> const&
+    OCPNInterfaceImpl::getCurrentPlannedTrajectory() const
+{
+    return currentPlannedTrajectory;
+}
+
+
+OCPNInterfaceImpl::SampledTrajectory OCPNInterfaceImpl::sampleTrajectory(
+    usv_control::Trajectory const& trajectory, base::Time dt)
+{
+    auto startTime = trajectory.getStartTime();
+    auto endTime   = trajectory.getEndTime();
+
+    SampledTrajectory sampledTrajectory;
+    auto& sampledPoints = sampledTrajectory.points;
+    int pointCount = ceil((endTime - startTime).toSeconds() / dt.toSeconds());
+    sampledPoints.reserve(pointCount);
+    for (base::Time t = startTime; t < endTime; t = t + dt) {
+        Eigen::Vector2d p;
+        Eigen::Vector2d v;
+        tie(p, v) = trajectory.getLinearAndTangent(t);
+
+        base::samples::RigidBodyState rbs;
+        rbs.position = Eigen::Vector3d(p.x(), p.y(), 0);
+        auto latlon = mLatLonConverter.convertNWUToGPS(rbs);
+
+        TrajectoryPoint ocpnPoint;
+        ocpnPoint.latitude_deg  = latlon.latitude;
+        ocpnPoint.longitude_deg = latlon.longitude;
+        ocpnPoint.velocity = v.norm();
+        sampledPoints.push_back(ocpnPoint);
+    }
+
+    sampledTrajectory.start_time = startTime;
+    sampledTrajectory.dt = dt;
+    return sampledTrajectory;
 }
 
 void OCPNInterfaceImpl::pushNMEA(string nmea)
@@ -166,4 +220,5 @@ void OCPNInterfaceImpl::pushAIS(T const& message)
     for (auto const& s : sentences) {
         pushNMEA(marnav::nmea::to_string(*s));
     }
+
 }

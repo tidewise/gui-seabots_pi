@@ -26,10 +26,12 @@ set(PLUGIN_DATA_PATH share/opencpn/plugins/seabots_pi)
 configure_file(src/Paths.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/src/Paths.hpp @ONLY)
 
 add_definitions(-DRTT_COMPONENT)
+add_definitions(-DGL_GLEXT_PROTOTYPES)
 find_package(marnav)
 rock_library(seabots_pi
     MODULE src/Plugin.cpp src/NMEA.cpp src/OCPNInterfaceImpl.cpp
-    DEPS_PKGCONFIG base-types gps_base
+    DEPS_PLAIN OPENGL # OpenGL found by OCPN's PluginConfigure.cmake
+    DEPS_PKGCONFIG base-types gps_base usv_control
         orocos-rtt-gnulinux
         orocos-rtt-corba-gnulinux
         std-typekit-gnulinux
@@ -61,6 +63,8 @@ target_link_libraries(seabots_pi marnav::marnav)
 install(FILES images/seabots.svg
               images/execute_route.svg
               images/execute_route_toggled.svg
+              src/trajectory.frag
+              src/trajectory.vert
         DESTINATION "${PLUGIN_DATA_PATH}")
 
 target_include_directories(seabots_pi PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
