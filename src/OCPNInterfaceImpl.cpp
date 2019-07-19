@@ -13,6 +13,9 @@ using base::Angle;
 using namespace seabots_pi;
 using namespace marnav;
 
+static const int RAD2DEG = 180.0 / M_PI;
+static const double SI2KNOTS = 1.94384;
+
 void OCPNInterfaceImpl::setUTMConversionParameters(
     gps_base::UTMConversionParameters const& parameters
 )
@@ -64,6 +67,10 @@ void OCPNInterfaceImpl::pushRoute(PlugIn_Route const& route)
     }
     rock_wps[0].speed = 0;
     rock_wps[rock_wps.size() - 1].speed = 0;
+
+    for (auto& wps : rock_wps) {
+        wps.speed /= SI2KNOTS;
+    }
 
     PlanningRequest request;
     request.id = ++lastPlanningRequestID;
@@ -149,9 +156,6 @@ utils::optional<T> marnav_from_rock(T value) {
         return utils::make_optional<T>(value);
     }
 }
-
-static const int RAD2DEG = 180.0 / M_PI;
-static const double SI2KNOTS = 1.94384;
 
 ais::rate_of_turn rot_marnav_from_rock(double value) {
     if (base::isUnknown(value)) {
