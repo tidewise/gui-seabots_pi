@@ -17,7 +17,7 @@ void OCPNInterfaceImpl::setUTMConversionParameters(
     gps_base::UTMConversionParameters const& parameters
 )
 {
-    currentPlannedTrajectory.first = 0;
+    currentPlanningResult = SampledPlanningResult();
     mLatLonConverter.setParameters(parameters);
 }
 
@@ -43,7 +43,6 @@ void OCPNInterfaceImpl::updateSystemPose(base::samples::RigidBodyState const& rb
 /** Send an OpenCPN route to the Rock system */
 void OCPNInterfaceImpl::pushRoute(PlugIn_Route const& route)
 {
-    std::cout << "InterfaceImpl ROUTE SPEED " << route.m_PlannedSpeed << std::endl;
     std::vector<Waypoint> rock_wps;
     for (auto const& waypoint_ptr : *route.pWaypointList) {
         auto const& wp = *waypoint_ptr;
@@ -65,27 +64,42 @@ void OCPNInterfaceImpl::pushRoute(PlugIn_Route const& route)
     }
     rock_wps[0].speed = 0;
     rock_wps[rock_wps.size() - 1].speed = 0;
-    pushWaypoints(rock_wps);
+
+    PlanningRequest request;
+    request.id = ++lastPlanningRequestID;
+    request.waypoints = std::move(rock_wps);
+    lastPlannedRouteGUID = route.m_GUID;
+    pushPlanningRequest(request);
 }
 
-void OCPNInterfaceImpl::updatePlannedTrajectory(
-    std::vector<usv_control::Trajectory> const& trajectories, base::Time dt
-)
+void OCPNInterfaceImpl::updatePlanningResult(PlanningResult const& result, base::Time dt)
 {
     std::vector<SampledTrajectory> sampled;
-    sampled.reserve(trajectories.size());
-    for (auto const& rockTrajectory : trajectories) {
+    sampled.reserve(result.trajectories.size());
+    for (auto const& rockTrajectory : result.trajectories) {
         sampled.push_back(sampleTrajectory(rockTrajectory, dt));
     }
-    currentPlannedTrajectory.first++;
-    currentPlannedTrajectory.second = std::move(sampled);
+    currentPlanningResult.id = result.id;
+    currentPlanningResult.trajectories = result.trajectories;
+    currentPlanningResult.sampled = std::move(sampled);
 }
 
+bool OCPNInterfaceImpl::hasValidPlanningResultForRoute(std::string guid) const {
+    return lastPlannedRouteGUID == guid &&
+           lastPlanningRequestID == currentPlanningResult.id;
+}
 
-pair<int, vector<OCPNInterfaceImpl::SampledTrajectory>> const&
-    OCPNInterfaceImpl::getCurrentPlannedTrajectory() const
+bool OCPNInterfaceImpl::executeCurrentTrajectories(std::string guid) {
+    if (!hasValidPlanningResultForRoute(guid))
+        return false;
+    pushTrajectoriesForExecution(currentPlanningResult.trajectories);
+    return true;
+}
+
+OCPNInterfaceImpl::SampledPlanningResult const&
+    OCPNInterfaceImpl::getCurrentPlanningResult() const
 {
-    return currentPlannedTrajectory;
+    return currentPlanningResult;
 }
 
 

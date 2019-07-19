@@ -38,6 +38,7 @@ namespace seabots_pi {
         static const char* DESCRIPTION_SHORT;
         static const char* DESCRIPTION_LONG;
 
+        static const int TOOL_PLAN_ROOT_POSITION = -1;
         static const int TOOL_EXECUTE_ROOT_POSITION = -1;
 
         typedef std::vector<RTT::TaskContext*> Tasks;
@@ -62,9 +63,11 @@ namespace seabots_pi {
         wxString mSeabotsSVG;
         wxBitmap mSeabotsBitmap;
 
+        wxString mPlanRouteSVG;
+        wxString mPlanRouteSVGToggled;
         wxString mExecuteRouteSVG;
         wxString mExecuteRouteSVGToggled;
-        int mExecuteRoutePosition = -1;
+        int mPlanRouteTool = -1;
         int mExecuteRouteTool = -1;
         int GetToolbarToolCount(void);
         void OnToolbarToolCallback(int id);
@@ -102,7 +105,8 @@ namespace seabots_pi {
 
         virtual bool RenderGLOverlayMultiCanvas(wxGLContext *pcontext, PlugIn_ViewPort *vp, int index);
 
-        bool executeCurrentRoute();
+        bool planCurrentRoute();
+        bool executeCurrentTrajectories();
 
         wxString GetCommonName() { return NAME; }
         wxString GetShortDescription() { return DESCRIPTION_SHORT; }

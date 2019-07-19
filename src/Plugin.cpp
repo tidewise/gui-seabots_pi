@@ -130,6 +130,10 @@ int Plugin::Init() {
 
 void Plugin::setupToolbar()
 {
+    mPlanRouteTool = InsertPlugInToolSVG(
+        _T( "Plan Route" ),
+        mPlanRouteSVG, mPlanRouteSVG, mPlanRouteSVGToggled, wxITEM_NORMAL,
+        _("Plan Route"), _T( "" ), NULL, TOOL_PLAN_ROOT_POSITION, 0, this);
     mExecuteRouteTool = InsertPlugInToolSVG(
         _T( "Execute Route" ),
         mExecuteRouteSVG, mExecuteRouteSVG, mExecuteRouteSVGToggled, wxITEM_CHECK,
@@ -194,10 +198,6 @@ bool Plugin::RenderGLOverlayMultiCanvas(wxGLContext *pcontext, PlugIn_ViewPort *
     glLoadPrograms();
 
     GLStatePush state;
-    //float viewTransform[4] = {
-    //    2.0f / vp->pix_width, 0,
-    //    0, -2.0f / vp->pix_height
-    //};
     float viewTransform[16] = {
         2.0f / vp->pix_width, 0, 0, -1,
         0, -2.0f / vp->pix_height, 0, 1,
@@ -205,8 +205,8 @@ bool Plugin::RenderGLOverlayMultiCanvas(wxGLContext *pcontext, PlugIn_ViewPort *
         0, 0, 0, 1
     };
 
-    auto const& current = mInterface->getCurrentPlannedTrajectory();
-    auto const& trajectories = current.second;
+    auto const& current = mInterface->getCurrentPlanningResult();
+    auto const& trajectories = current.sampled;
     if (!trajectories.empty()) {
         glAllocateTrajectoryArrays(trajectories.size());
         for (unsigned int i = 0; i < trajectories.size(); ++i)
@@ -321,6 +321,10 @@ void Plugin::loadSVGs()
     wxFileName fn;
     fn.SetPath(paths::DATA_PATH);
 
+    fn.SetFullName("plan_route.svg");
+    mPlanRouteSVG = fn.GetFullPath();
+    fn.SetFullName("plan_route_toggled.svg");
+    mPlanRouteSVGToggled = fn.GetFullPath();
     fn.SetFullName("execute_route.svg");
     mExecuteRouteSVG = fn.GetFullPath();
     fn.SetFullName("execute_route_toggled.svg");
@@ -362,13 +366,17 @@ int Plugin::GetToolbarToolCount(void)
 
 void Plugin::OnToolbarToolCallback(int id)
 {
-    if (id == mExecuteRouteTool) {
-        bool result = executeCurrentRoute();
+    if (id == mPlanRouteTool) {
+        bool result = planCurrentRoute();
+        SetToolbarItemState(mExecuteRouteTool, result);
+    }
+    else if (id == mExecuteRouteTool) {
+        bool result = executeCurrentTrajectories();
         SetToolbarItemState(mExecuteRouteTool, result);
     }
 }
 
-bool Plugin::executeCurrentRoute()
+bool Plugin::planCurrentRoute()
 {
     wxString routeID = GetActiveRouteGUID_Plugin();
     if (routeID.IsEmpty()) {
@@ -378,6 +386,17 @@ bool Plugin::executeCurrentRoute()
 
     auto route = GetRoute_Plugin(routeID);
     mInterface->pushRoute(*route);
+    return true;
+}
+
+bool Plugin::executeCurrentTrajectories()
+{
+    wxString routeID = GetActiveRouteGUID_Plugin();
+    if (!mInterface->hasValidPlanningResultForRoute(routeID.ToStdString())) {
+        wxMessageBox("No planned trajectories for the current route");
+        return false;
+    }
+    mInterface->executeCurrentTrajectories(routeID.ToStdString());
     return true;
 }
 

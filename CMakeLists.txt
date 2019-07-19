@@ -61,6 +61,8 @@ target_include_directories(seabots_pi PRIVATE
 target_link_libraries(seabots_pi marnav::marnav)
 
 install(FILES images/seabots.svg
+              images/plan_route.svg
+              images/plan_route_toggled.svg
               images/execute_route.svg
               images/execute_route_toggled.svg
               src/trajectory.frag

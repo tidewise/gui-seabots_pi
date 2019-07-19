@@ -32,6 +32,11 @@ namespace seabots_pi {
             std::vector<TrajectoryPoint> points;
         };
 
+        struct SampledPlanningResult : PlanningResult
+        {
+            std::vector<SampledTrajectory> sampled;
+        };
+
         /** Configure the UTM-to-LatLon converter */
         void setUTMConversionParameters(
             gps_base::UTMConversionParameters const& parameters
@@ -49,14 +54,19 @@ namespace seabots_pi {
         /** Send an AIS vessel message to OpenCPN */
         void updateAIS(seabots_pi::AISVesselInformation const& vessel);
 
+        /** Check if we have a valid planning result for the given route */
+        bool hasValidPlanningResultForRoute(std::string guid) const;
+
+        /** Execute the current planning result for the given route */
+        bool executeCurrentTrajectories(std::string guid);
+
         /** Visualize the trajectory planned by the seabots system */
-        virtual void updatePlannedTrajectory(
-            std::vector<usv_control::Trajectory> const& trajectories,
+        virtual void updatePlanningResult(
+            PlanningResult const& result,
             base::Time dt = base::Time::fromSeconds(5)
         );
 
-        std::pair<int, std::vector<SampledTrajectory>> const&
-            getCurrentPlannedTrajectory() const;
+        SampledPlanningResult const& getCurrentPlanningResult() const;
 
         SampledTrajectory sampleTrajectory(
             usv_control::Trajectory const& trajectory,
@@ -69,7 +79,9 @@ namespace seabots_pi {
 
         gps_base::UTMConverter mLatLonConverter;
 
-        std::pair<int, std::vector<SampledTrajectory>> currentPlannedTrajectory;
+        uint64_t lastPlanningRequestID;
+        std::string lastPlannedRouteGUID;
+        SampledPlanningResult currentPlanningResult;
     };
 }
 
