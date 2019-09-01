@@ -1,5 +1,4 @@
 #include "Plugin.hpp"
-#include "Images.hpp"
 #include "OCPNInterfaceImpl.hpp"
 #include "Paths.hpp"
 #include <iostream>
