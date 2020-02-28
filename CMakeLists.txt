@@ -46,6 +46,10 @@ rock_library(seabots_pi
         gps_base-transport-corba-gnulinux
         gps_base-transport-mqueue-gnulinux
         gps_base-transport-typelib-gnulinux
+        ais_base-typekit-gnulinux
+        ais_base-transport-corba-gnulinux
+        ais_base-transport-mqueue-gnulinux
+        ais_base-transport-typelib-gnulinux
         seabots_pi-tasks-gnulinux
         seabots_pi-typekit-gnulinux
         seabots_pi-transport-corba-gnulinux
