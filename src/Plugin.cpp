@@ -23,6 +23,11 @@
 #include <gps_base/transports/typelib/TransportPlugin.hpp>
 #include <gps_base/transports/mqueue/TransportPlugin.hpp>
 
+#include <ais_base/typekit/Plugin.hpp>
+#include <ais_base/transports/corba/TransportPlugin.hpp>
+#include <ais_base/transports/typelib/TransportPlugin.hpp>
+#include <ais_base/transports/mqueue/TransportPlugin.hpp>
+
 #include <seabots_pi/Task.hpp>
 #include <seabots_pi/typekit/Plugin.hpp>
 #include <seabots_pi/transports/corba/TransportPlugin.hpp>
@@ -97,6 +102,11 @@ int Plugin::Init() {
     RTT::types::TypekitRepository::Import(new orogen_typekits::gps_baseCorbaTransportPlugin);
     RTT::types::TypekitRepository::Import(new orogen_typekits::gps_baseMQueueTransportPlugin);
     RTT::types::TypekitRepository::Import(new orogen_typekits::gps_baseTypelibTransportPlugin);
+
+    RTT::types::TypekitRepository::Import(new orogen_typekits::ais_baseTypekitPlugin);
+    RTT::types::TypekitRepository::Import(new orogen_typekits::ais_baseCorbaTransportPlugin);
+    RTT::types::TypekitRepository::Import(new orogen_typekits::ais_baseMQueueTransportPlugin);
+    RTT::types::TypekitRepository::Import(new orogen_typekits::ais_baseTypelibTransportPlugin);
 
     RTT::types::TypekitRepository::Import(new orogen_typekits::seabots_piTypekitPlugin);
     RTT::types::TypekitRepository::Import(new orogen_typekits::seabots_piCorbaTransportPlugin);

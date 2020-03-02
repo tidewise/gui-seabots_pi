@@ -49,10 +49,10 @@ namespace seabots_pi {
         void pushRoute(PlugIn_Route const& route);
 
         /** Send an AIS position message to OpenCPN */
-        void updateAIS(seabots_pi::AISPosition const& position);
+        void updateAIS(ais_base::Position const& position);
 
         /** Send an AIS vessel message to OpenCPN */
-        void updateAIS(seabots_pi::AISVesselInformation const& vessel);
+        void updateAIS(ais_base::VesselInformation const& vessel);
 
         /** Check if we have a valid planning result for the given route */
         bool hasValidPlanningResultForRoute(std::string guid) const;

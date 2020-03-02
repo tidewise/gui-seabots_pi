@@ -87,8 +87,15 @@ void OCPNInterfaceImpl::updatePlanningResult(PlanningResult const& result, base:
         sampled.push_back(sampleTrajectory(rockTrajectory, dt));
     }
     currentPlanningResult.id = result.id;
+    currentPlanningResult.success = result.success;
+    currentPlanningResult.invalid_waypoint = result.invalid_waypoint;
+    currentPlanningResult.error_message = result.error_message;
     currentPlanningResult.trajectories = result.trajectories;
     currentPlanningResult.sampled = std::move(sampled);
+
+    if (!currentPlanningResult.success) {
+        wxMessageBox("Planning route failed: " + currentPlanningResult.error_message);
+    }
 }
 
 bool OCPNInterfaceImpl::hasValidPlanningResultForRoute(std::string guid) const {
@@ -192,7 +199,7 @@ utils::optional<Ret> latlon_marnav_from_rock(base::Angle value) {
 }
 
 /** Send an AIS position message to OpenCPN */
-void OCPNInterfaceImpl::updateAIS(seabots_pi::AISPosition const& position)
+void OCPNInterfaceImpl::updateAIS(ais_base::Position const& position)
 {
     ais::message_01 ais_position;
     ais_position.set_mmsi(utils::mmsi(position.mmsi));
@@ -214,7 +221,7 @@ void OCPNInterfaceImpl::updateAIS(seabots_pi::AISPosition const& position)
 }
 
 /** Send an AIS vessel message to OpenCPN */
-void OCPNInterfaceImpl::updateAIS(seabots_pi::AISVesselInformation const& vessel)
+void OCPNInterfaceImpl::updateAIS(ais_base::VesselInformation const& vessel)
 {
     ais::message_05 ais_vessel;
     ais_vessel.set_mmsi(utils::mmsi(vessel.mmsi));
@@ -226,7 +233,7 @@ void OCPNInterfaceImpl::updateAIS(seabots_pi::AISVesselInformation const& vessel
     ais_vessel.set_to_stern(vessel.length / 2);
     ais_vessel.set_to_port(vessel.width / 2);
     ais_vessel.set_to_starboard(vessel.width / 2);
-    ais_vessel.set_draught(vessel.draught);
+    ais_vessel.set_draught(vessel.draft);
     pushAIS(ais_vessel);
 }
 
@@ -238,5 +245,4 @@ void OCPNInterfaceImpl::pushAIS(T const& message)
     for (auto const& s : sentences) {
         pushNMEA(marnav::nmea::to_string(*s));
     }
-
 }
