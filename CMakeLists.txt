@@ -5,10 +5,11 @@
 ##---------------------------------------------------------------------------
 
 # define minimum cmake version
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+cmake_minimum_required(VERSION 3.4)
+project(seabots_pi VERSION 0.3)
 
 find_package(Rock)
-rock_init(seabots_pi 0.3)
+rock_init()
 SET(PACKAGE_NAME seabots_pi)
 SET(VERBOSE_NAME SeaBots)
 SET(TITLE_NAME SeaBots)
